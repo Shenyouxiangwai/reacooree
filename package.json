@@ -4,7 +4,11 @@
   "description": "",
   "version": "0.0.1",
   "publisher": "Shenyouxiangwai",
-  "icon": "./IMG_4094.jpg",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Shenyouxiangwai/reacooree.git"
+  },
+  "icon": "images/IMG_4094.jpg",
   "engines": {
     "vscode": "^1.85.0"
   },
