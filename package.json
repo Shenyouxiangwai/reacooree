@@ -2,7 +2,7 @@
   "name": "reacooree",
   "displayName": "Reacooree",
   "description": "",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "Shenyouxiangwai",
   "repository": {
     "type": "git",
@@ -45,6 +45,38 @@
           "group": "analyze"
         }
       ]
+    },
+    "configuration": {
+      "title": "@ 所代表的路径目录",
+      "properties": {
+        "Reacooree.absoluteOriginPath": {
+          "type": "string",
+          "default": "/src",
+          "description": "@ 所代表的路径目录，例如 @/images 代表 /src/images"
+        },
+        "Reacooree.ignores": {
+          "type": "array",
+          "default": [
+            "div",
+            "p",
+            "span",
+            "image",
+            "View",
+            "Text",
+            "Image",
+            "Provider",
+            "useState",
+            "useRef",
+            "useMemo",
+            "useEffect",
+            "useCallback",
+            "useMemoizedFn",
+            "useDidShow",
+            "useDidHide"
+          ],
+          "description": "忽略的 components 与 hooks"
+        }
+      }
     }
   },
   "scripts": {

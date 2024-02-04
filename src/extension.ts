@@ -5,13 +5,17 @@ import {
   formatterAnalyzeData2WebviewData,
   openHtml,
 } from './utils';
+import { getAbsoluteOriginPathMap } from './utils/analyze/path';
 
 export async function activate(context: vscode.ExtensionContext) {
   const analyzeHooksInTheFile = vscode.commands.registerCommand(
     'reacooree.分析文件内的 hooks 结构',
     async (uri: vscode.Uri) => {
       try {
+        const originPathMap = await getAbsoluteOriginPathMap(uri.fsPath);
+
         const scanImportRes = await analyzeIndexFunction({
+          originPathMap,
           filePath: uri.fsPath,
         });
 
@@ -39,7 +43,12 @@ export async function activate(context: vscode.ExtensionContext) {
         return;
       }
 
+      const originPathMap = await getAbsoluteOriginPathMap(
+        editor.document.uri.fsPath
+      );
+
       const scanImportRes = await analyzeIndexFunction({
+        originPathMap,
         filePath: editor.document.uri.fsPath,
         content: editor.document.getText(editor.selection),
       });

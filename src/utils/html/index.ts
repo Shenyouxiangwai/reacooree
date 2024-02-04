@@ -9,6 +9,10 @@ type WebviewData = {
   children?: Array<WebviewData>;
 };
 
+const ignores = JSON.stringify(
+  vscode.workspace.getConfiguration().get('Reacooree.ignores')
+);
+
 const getNonce = () => {
   let text = '';
   const possible =
@@ -35,15 +39,96 @@ const getWebviewContent = (content: string) => {
   
   <body style="height: 100%; margin: 0; padding: 0; background: white">
     <div style="position: fixed; left: 20px; top: 20px; z-index: 1; display: flex; align-items: center;">
-      <input type="text" id="searchInput" placeholder="Search node..." onkeyup="handleEnter(event)"
-        style="height: 36px; box-sizing: border-box; font-size: 18px; border: 1px solid #bbbbbb; padding: 5px 10px; border-radius: 4px; margin-right: 8px; font-family: monospace;">
-      <button onclick="searchNode()"
-        style="height: 36px; font-size: 18px; border: 1px solid #bbbbbb; padding: 5px 10px; border-radius: 4px; background: #d63031; color: white; border: none;">搜索</button>
+      <input type="text" id="searchInput" placeholder="Search node..." onkeyup="handleEnter(event)" class="input">
+      <button onclick="searchNode()" class="button">搜索</button>
+  
+      <text style="margin-right: 8px;">是否过滤</text>
+      <label class="switch">
+        <input type="checkbox" id="switch">
+        <span class="slider"></span>
+      </label>
     </div>
   
     <div id="container" style="height: 100%"></div>
   </body>
   
+  <style>
+    .input {
+      height: 36px;
+      box-sizing: border-box;
+      font-size: 18px;
+      border: 1px solid #bbbbbb;
+      padding: 5px 10px;
+      border-radius: 4px;
+      margin-right: 8px;
+      font-family: monospace;
+    }
+  
+    .button {
+      height: 36px;
+      font-size: 18px;
+      border: 1px solid #bbbbbb;
+      padding: 5px 10px;
+      border-radius: 4px;
+      background: #d63031;
+      color: white;
+      margin-right: 8px;
+      border: none;
+    }
+  
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+  
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+  
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-radius: 34px;
+    }
+  
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+      border-radius: 50%;
+    }
+  
+    input:checked+.slider {
+      background-color: #d63031;
+    }
+  
+    input:focus+.slider {
+      box-shadow: 0 0 1px #d63031;
+    }
+  
+    input:checked+.slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+    }
+  </style>
   
   <script nonce="${nonce}" type="text/javascript">
     const vscode = acquireVsCodeApi();
@@ -53,7 +138,9 @@ const getWebviewContent = (content: string) => {
       useDirtyRect: false
     });
   
-    const content = ${content}
+    const content = ${content};
+  
+    const ignores = ${ignores};
   
     const openFileDiv = (filePath) => {
       vscode.postMessage({
@@ -120,7 +207,7 @@ const getWebviewContent = (content: string) => {
               borderColor: 'white',
               borderWidth: 3
             },
-            initialTreeDepth: 0
+            initialTreeDepth: 1
           }
         ]
       }
@@ -208,6 +295,34 @@ const getWebviewContent = (content: string) => {
         }],
       });
     }
+  
+    const filterItems = (items) => {
+      const recursiveFilter = (items) => {
+        return items
+          .filter(item => !ignores.includes(item.name))
+          .map(item => {
+            if (item.children && item.children.length) {
+              item.children = recursiveFilter(item.children);
+            }
+            return item;
+          });
+      }
+  
+      return recursiveFilter(items);
+    }
+  
+    const ignoredContent = filterItems(content);
+  
+    document.getElementById('switch').addEventListener('change', function () {
+      chart.setOption({
+        series: [{
+          data: [{
+            name: 'root',
+            children: this.checked ? ignoredContent : content,
+          }]
+        }],
+      });
+    });
   </script>
   
   </html>`;
